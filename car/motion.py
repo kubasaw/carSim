@@ -1,6 +1,9 @@
 """Module which is holding Car classes 
 """
 
+import numpy as np
+from scipy.integrate import solve_ivp
+
 
 class motion:
     """Car motion
@@ -9,8 +12,7 @@ class motion:
     def __init__(self):
 
         # Simulation initial values
-        self.distance = 0
-        self.speed = 0
+        self.state = np.zeros(3)
         self.time = 0
         self.throttle = 0
 
@@ -35,7 +37,7 @@ class motion:
         float
             Actual distance in meters
         """
-        return self.distance
+        return self.state[0]
 
     def getSimSpeed(self):
         """Returns actual vehicle speed
@@ -45,7 +47,7 @@ class motion:
         float
             Actual vehicle speed in meters per second
         """
-        return self.speed
+        return self.state[1]
 
     def setThrottle(self, throttle):
         """Set actual throttle value for next simulation time steps
@@ -104,11 +106,19 @@ class motion:
         ValueError
             If *dt* is not greater than 0
         """
+        def dy_dx(y, x):
+            return np.cos(y)
+
         if dt is not None:
             try:
                 self.setTimestep(dt)
             except:
                 raise ValueError("Timestep value have to be greater than 0")
 
-        # tu scalkowac rownanie ruchu na odcinku self.timestep
-        pass
+        t0 = self.time
+        tf = self.time+self.timestep
+
+        self.state = solve_ivp(dy_dx, (t0, tf), self.state, t_eval=[tf])['y']
+        self.time = tf
+
+        return self.state

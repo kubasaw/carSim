@@ -1,3 +1,4 @@
 import car
 
-paks = car()
+paks = car.motion()
+print(paks.makeStep())
