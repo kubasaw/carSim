@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'carSim'
 copyright = '2019, Kuba Sawulski'
 author = 'Kuba Sawulski'
-
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 
