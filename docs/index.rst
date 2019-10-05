@@ -6,7 +6,7 @@
 Welcome to carSim's documentation!
 ==================================
 
-.. automodule:: car.car
+.. automodule:: car.motion
 	:members:
 
 .. toctree::

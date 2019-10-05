@@ -1,4 +1,6 @@
-"""Module which is holding Car classes 
+"""Car motion class
+   ================
+   This part of the module contains the vehicle motion simulator class.
 """
 
 import numpy as np
@@ -6,7 +8,7 @@ from scipy.integrate import solve_ivp
 
 
 class motion:
-    """Car motion
+    """Car motion class
     """
 
     def __init__(self):
