@@ -9,6 +9,9 @@ Welcome to carSim's documentation!
 .. automodule:: car.motion
 	:members:
 
+.. automodule:: car.util
+    :members:
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
