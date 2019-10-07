@@ -1,10 +1,11 @@
 """Car simulation utilities module
-   ===============================
+  
 """
+
 
 def mpsToKmph(speed):
     """Meter per second to kilometer per hour unit converter
-    
+
     Parameters
     ----------
     speed : multiplicable (float, numpy.array etc.)
@@ -12,8 +13,8 @@ def mpsToKmph(speed):
 
     Returns
     -------
-    as *speed*
-    Speed converted to km/h
-        
+    convertedSpeed : as *speed*
+        Speed converted to km/h
     """
-    return speed*3.6
+    convertedSpeed = speed*3.6
+    return convertedSpeed
