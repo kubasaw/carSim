@@ -148,6 +148,8 @@ class track:
         """
         return self.__interpolantFunction(np.remainder(point, self.__trackLength))
 
+    def getTrackProfile(self):
+        return self.__verticalProfile
 
 class motion:
     """Car motion class
@@ -164,6 +166,9 @@ class motion:
 
         # Simulation control
         self.__timestep = 0.1
+
+    def getSimTrackProfile(self):
+        return self.__track.getTrackProfile()
 
     def getSimTime(self):
         """Returns actual simulation time
@@ -218,8 +223,11 @@ class motion:
         ValueError
             If *throttle* is not number or outside unit interval
         """
-        temp = float(throttle)
-        if (temp < 0 or temp > 1):
+        try:
+            temp = float(throttle)
+            if (temp < 0 or temp > 1):
+                raise ValueError()
+        except:
             raise ValueError(
                 "Throttle value have to be choosen from unit interval [0-1]")
         self.__throttle = temp
@@ -290,7 +298,6 @@ class motion:
 
         if dt is not None:
             self.setTimestep(dt)
-
 
         t0 = self.__time
         tf = self.__time+self.__timestep
