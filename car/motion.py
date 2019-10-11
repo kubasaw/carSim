@@ -195,6 +195,16 @@ class motion:
         """
         return self.__state[1]
 
+    def getSimFuel(self):
+        """Returns consumed fuel
+
+        Returns
+        -------
+        float
+            Actual consumed fuel in mililiters
+        """
+        return self.__state[2]
+
     def setThrottle(self, throttle):
         """Set actual throttle value for next simulation time steps
 
@@ -279,10 +289,8 @@ class motion:
             return xdot
 
         if dt is not None:
-            try:
-                self.setTimestep(dt)
-            except:
-                raise ValueError("Timestep value have to be greater than 0")
+            self.setTimestep(dt)
+
 
         t0 = self.__time
         tf = self.__time+self.__timestep
