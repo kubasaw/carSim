@@ -149,6 +149,14 @@ class track:
         return self.__interpolantFunction(np.remainder(point, self.__trackLength))
 
     def getTrackProfile(self):
+        """Returns vertical road profile
+
+        Returns
+        -------
+
+        profile : array of 2-element tuples
+            Road profile points coordinates
+        """
         return self.__verticalProfile
 
 class motion:
@@ -168,6 +176,14 @@ class motion:
         self.__timestep = 0.1
 
     def getSimTrackProfile(self):
+        """Returns actual applied vertical road profile
+
+        Returns
+        -------
+
+        profile : array of 2-element tuples
+            Road profile points coordinates
+        """
         return self.__track.getTrackProfile()
 
     def getSimTime(self):
