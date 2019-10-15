@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="logos">
+    <file>ia_logo.png</file>
+    <file>skap_logo.png</file>
+  </qresource>
+</RCC>

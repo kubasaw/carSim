@@ -170,21 +170,10 @@ class motion:
         self.__time = 0
         self.__throttle = 0
         self.__constants = constants()
-        self.__track = track()
+        self.track = track()
 
         # Simulation control
         self.__timestep = 0.1
-
-    def getSimTrackProfile(self):
-        """Returns actual applied vertical road profile
-
-        Returns
-        -------
-
-        profile : array of 2-element tuples
-            Road profile points coordinates
-        """
-        return self.__track.getTrackProfile()
 
     def getSimTime(self):
         """Returns actual simulation time
@@ -306,7 +295,7 @@ class motion:
                 (self.__constants.p[1]*throttle*throttle/self.__constants.m-self.__constants.g*self.__constants.f[1]) * x[1] + \
                 self.__constants.p[0]*throttle*throttle/self.__constants.m-self.__constants.g * \
                 self.__constants.f[0] - self.__constants.g * \
-                self.__track.getSlopeSine(x[0])
+                self.track.getSlopeSine(x[0])
             xdot[2] = (self.__constants.r[2]*x[1]*x[1]+self.__constants.r[1]
                        * x[1]+self.__constants.r[0])*throttle
 

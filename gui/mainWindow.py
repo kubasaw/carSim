@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainWindow.ui'
+# Form implementation generated from reading ui file '.\mainWindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -79,11 +79,20 @@ class Ui_MainWindow(object):
         self.Track = QtWidgets.QWidget()
         self.Track.setObjectName("Track")
         self.trackVerticalProfileField = QtWidgets.QPlainTextEdit(self.Track)
-        self.trackVerticalProfileField.setGeometry(QtCore.QRect(10, 30, 651, 281))
+        self.trackVerticalProfileField.setGeometry(QtCore.QRect(10, 30, 261, 281))
         self.trackVerticalProfileField.setObjectName("trackVerticalProfileField")
         self.trackVerticalProfileLabel = QtWidgets.QLabel(self.Track)
-        self.trackVerticalProfileLabel.setGeometry(QtCore.QRect(10, 10, 151, 16))
+        self.trackVerticalProfileLabel.setGeometry(QtCore.QRect(10, 10, 251, 16))
         self.trackVerticalProfileLabel.setObjectName("trackVerticalProfileLabel")
+        self.trackVerticalProfileTab = QtWidgets.QTableWidget(self.Track)
+        self.trackVerticalProfileTab.setGeometry(QtCore.QRect(280, 30, 371, 281))
+        self.trackVerticalProfileTab.setObjectName("trackVerticalProfileTab")
+        self.trackVerticalProfileTab.setColumnCount(2)
+        self.trackVerticalProfileTab.setRowCount(0)
+        item = QtWidgets.QTableWidgetItem()
+        self.trackVerticalProfileTab.setHorizontalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.trackVerticalProfileTab.setHorizontalHeaderItem(1, item)
         self.tabWidget.addTab(self.Track, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
@@ -129,7 +138,11 @@ class Ui_MainWindow(object):
         self.engineLabel.setText(_translate("MainWindow", "Engine"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Simulation), _translate("MainWindow", "Simulation"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Car), _translate("MainWindow", "Car"))
-        self.trackVerticalProfileLabel.setText(_translate("MainWindow", "Track Profile (Python format)"))
+        self.trackVerticalProfileLabel.setText(_translate("MainWindow", "Track Profile (Python format)+table view"))
+        item = self.trackVerticalProfileTab.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "Position [m]"))
+        item = self.trackVerticalProfileTab.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "Height [m a.s.l.]"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Track), _translate("MainWindow", "Track"))
         self.menuMain.setTitle(_translate("MainWindow", "Main"))
         self.menuAbout.setTitle(_translate("MainWindow", "About"))
