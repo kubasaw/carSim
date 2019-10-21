@@ -6,96 +6,16 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
+import json
 
 
-class constants:
-    """Helper class holding problem specific constants
-    """
+class track():
 
-    def __init__(self):
-        self.g = 9.80665  # m/s^2
-        self.rho = 1.225  # kg/m^3
-        self.S = 1.008  # m^2
-        self.cx = 0.32  # -
-        self.m = 192  # kg
-        self.f = [0.000168, 0.00133]  # -
-        self.p = [233.1, -18.15, 1.039]  # N,N/speed,N/speed^2
-        self.r = [0.0458, 0.0198, 0.00074]  # mL/s,mL/s/speed,mL/s/speed^2
-
-
-class track:
-    """Helper class for local track slope estimation
-    """
-
-    def __init__(self):
-        self.__verticalProfile = [[0, 9.529],
-                                  [50, 9.870],
-                                  [100, 10.04],
-                                  [150, 10.22],
-                                  [155, 10.182],
-                                  [200, 9.471],
-                                  [250, 8.576],
-                                  [255, 8.476],
-                                  [280, 7.885],
-                                  [300, 7.392],
-                                  [315, 7.118],
-                                  [345, 6.675],
-                                  [350, 6.650],
-                                  [375, 6.300],
-                                  [400, 6.070],
-                                  [415, 5.878],
-                                  [450, 5.707],
-                                  [455, 5.722],
-                                  [500, 5.670],
-                                  [540, 5.572],
-                                  [550, 5.570],
-                                  [590, 5.627],
-                                  [600, 5.626],
-                                  [625, 5.651],
-                                  [650, 5.658],
-                                  [655, 5.603],
-                                  [680, 5.953],
-                                  [700, 6.130],
-                                  [750, 6.070],
-                                  [785, 6.026],
-                                  [800, 5.818],
-                                  [813, 5.755],
-                                  [836, 5.577],
-                                  [850, 5.509],
-                                  [870, 5.494],
-                                  [900, 5.282],
-                                  [930, 5.235],
-                                  [950, 5.030],
-                                  [975, 4.883],
-                                  [1000, 4.786],
-                                  [1025, 4.647],
-                                  [1050, 4.482],
-                                  [1100, 4.276],
-                                  [1150, 4.038],
-                                  [1165, 3.946],
-                                  [1200, 3.697],
-                                  [1220, 3.539],
-                                  [1250, 3.369],
-                                  [1270, 3.761],
-                                  [1300, 4.975],
-                                  [1335, 6.691],
-                                  [1350, 7.451],
-                                  [1395, 9.695],
-                                  [1400, 9.945],
-                                  [1450, 12.069],
-                                  [1455, 12.17],
-                                  [1500, 11.903],
-                                  [1505, 11.739],
-                                  [1550, 9.721],
-                                  [1553, 9.621],
-                                  [1580, 9.515],
-                                  [1600, 9.508],
-                                  [1630, 9.438],
-                                  [1650, 9.466],
-                                  [1659, 9.529]]
-        self.__trackLength = max(pos[0] for pos in self.__verticalProfile)
-        self.__interpolantFunction = interp1d([pos[0] for pos in self.__verticalProfile], [
-                                              pos[1] for pos in self.__verticalProfile], kind='cubic', bounds_error=True, copy=False, assume_sorted=True)
+    def __init__(self, arg):
+        self.__data = arg
+        self.__length = max(pos[0] for pos in self.__data)
+        self.__interpolant = interp1d([pos[0] for pos in self.__data], [
+            pos[1] for pos in self.__data], kind='cubic', bounds_error=True, copy=False, assume_sorted=True)
 
     def getSlopeSine(self, point, positionInterval=2):
         """Compute track slope sine
@@ -114,7 +34,7 @@ class track:
         """
 
         halfInterval = positionInterval/2
-        return (np.diff(self.__interpolantFunction(np.remainder([point-halfInterval, point+halfInterval], self.__trackLength)), axis=0)/positionInterval).flatten()
+        return (np.diff(self.__interpolant(np.remainder([point-halfInterval, point+halfInterval], self.__length)), axis=0)/positionInterval).flatten()
 
     def getSlope(self, point, positionInterval=2):
         """Compute track slope
@@ -146,9 +66,9 @@ class track:
         height : float
             Track elevation at 'point' in meters above sea level
         """
-        return self.__interpolantFunction(np.remainder(point, self.__trackLength))
+        return self.__interpolantFunction(np.remainder(point, self.__length))
 
-    def getTrackProfile(self):
+    def toList(self):
         """Returns vertical road profile
 
         Returns
@@ -157,7 +77,108 @@ class track:
         profile : array of 2-element tuples
             Road profile points coordinates
         """
-        return self.__verticalProfile
+        return self.__data
+
+
+class constants():
+    """Helper class holding problem specific constants
+    """
+
+    def __init__(self):
+        self.__constDict = dict()
+        self.__constDict["g"] = 9.80665  # m/s^2
+        self.__constDict["rho"] = 1.225  # kg/m^3
+        self.__constDict["S"] = 1.008  # m^2
+        self.__constDict["cx"] = 0.32  # -
+        self.__constDict["m"] = 192  # kg
+        self.__constDict["f"] = [0.000168, 0.00133]  # -
+        self.__constDict["p"] = [233.1, -18.15, 1.039]  # N,N/speed,N/speed^2
+        # mL/s,mL/s/speed,mL/s/speed^2
+        self.__constDict["r"] = [0.0458, 0.0198, 0.00074]
+
+        self.__constDict["Profile"] = track([[0, 9.529],
+                                             [50, 9.870],
+                                             [100, 10.04],
+                                             [150, 10.22],
+                                             [155, 10.182],
+                                             [200, 9.471],
+                                             [250, 8.576],
+                                             [255, 8.476],
+                                             [280, 7.885],
+                                             [300, 7.392],
+                                             [315, 7.118],
+                                             [345, 6.675],
+                                             [350, 6.650],
+                                             [375, 6.300],
+                                             [400, 6.070],
+                                             [415, 5.878],
+                                             [450, 5.707],
+                                             [455, 5.722],
+                                             [500, 5.670],
+                                             [540, 5.572],
+                                             [550, 5.570],
+                                             [590, 5.627],
+                                             [600, 5.626],
+                                             [625, 5.651],
+                                             [650, 5.658],
+                                             [655, 5.603],
+                                             [680, 5.953],
+                                             [700, 6.130],
+                                             [750, 6.070],
+                                             [785, 6.026],
+                                             [800, 5.818],
+                                             [813, 5.755],
+                                             [836, 5.577],
+                                             [850, 5.509],
+                                             [870, 5.494],
+                                             [900, 5.282],
+                                             [930, 5.235],
+                                             [950, 5.030],
+                                             [975, 4.883],
+                                             [1000, 4.786],
+                                             [1025, 4.647],
+                                             [1050, 4.482],
+                                             [1100, 4.276],
+                                             [1150, 4.038],
+                                             [1165, 3.946],
+                                             [1200, 3.697],
+                                             [1220, 3.539],
+                                             [1250, 3.369],
+                                             [1270, 3.761],
+                                             [1300, 4.975],
+                                             [1335, 6.691],
+                                             [1350, 7.451],
+                                             [1395, 9.695],
+                                             [1400, 9.945],
+                                             [1450, 12.069],
+                                             [1455, 12.17],
+                                             [1500, 11.903],
+                                             [1505, 11.739],
+                                             [1550, 9.721],
+                                             [1553, 9.621],
+                                             [1580, 9.515],
+                                             [1600, 9.508],
+                                             [1630, 9.438],
+                                             [1650, 9.466],
+                                             [1659, 9.529]])
+
+    def get(self, param):
+        return self.__constDict[param]
+
+    def toJSON(self, file=None):
+        if file != None:
+            return json.dump(self.__constDict, file, default=castToJSONable, indent=4)
+        else:
+            return json.dumps(self.__constDict, default=castToJSONable, indent=4)
+
+
+def castToJSONable(obj):
+    try:
+        if isinstance(obj, track):
+            return obj.toList()
+    except Exception as e:
+        raise TypeError(str(e))
+
 
 class motion:
     """Car motion class
@@ -169,8 +190,7 @@ class motion:
         self.__state = np.array(initialCondition)
         self.__time = 0
         self.__throttle = 0
-        self.__constants = constants()
-        self.track = track()
+        self.param = constants()
 
         # Simulation control
         self.__timestep = 0.1
@@ -291,13 +311,13 @@ class motion:
 
             # car specific dynamics
             xdot[0] = x[1]
-            xdot[1] = (self.__constants.p[2]*throttle*throttle/self.__constants.m-self.__constants.rho*self.__constants.S*self.__constants.cx/2/self.__constants.m)*x[1]*x[1] + \
-                (self.__constants.p[1]*throttle*throttle/self.__constants.m-self.__constants.g*self.__constants.f[1]) * x[1] + \
-                self.__constants.p[0]*throttle*throttle/self.__constants.m-self.__constants.g * \
-                self.__constants.f[0] - self.__constants.g * \
-                self.track.getSlopeSine(x[0])
-            xdot[2] = (self.__constants.r[2]*x[1]*x[1]+self.__constants.r[1]
-                       * x[1]+self.__constants.r[0])*throttle
+            xdot[1] = (self.param.get("p")[2]*throttle*throttle/self.param.get("m")-self.param.get("rho")*self.param.get("S")*self.param.get("cx")/2/self.param.get("m"))*x[1]*x[1] + \
+                (self.param.get("p")[1]*throttle*throttle/self.param.get("m")-self.param.get("g")*self.param.get("f")[1]) * x[1] + \
+                self.param.get("p")[0]*throttle*throttle/self.param.get("m")-self.param.get("g") * \
+                self.param.get("f")[0] - self.param.get("g") * \
+                self.param.get("Profile").getSlopeSine(x[0])
+            xdot[2] = (self.param.get("r")[2]*x[1]*x[1]+self.param.get("r")[1]
+                       * x[1]+self.param.get("r")[0])*throttle
 
             return xdot
 
