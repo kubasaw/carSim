@@ -13,13 +13,32 @@ _translate = QCoreApplication.translate
 class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        self.setupUi(self)
-
+        
         self.__car = car.motion()
+        self.__car.param.fromJSON(car.defaultParams())
+
+        self.__translator=QTranslator(self)
+
+        self.setupUi(self)
         self.populateFields()
         self.engineField.setText("0")
 
-        self.__car.param.fromJSON(car.defaultParams())
+        for file in os.listdir('lang'):
+            if file.startswith('carSim_') and file.endswith('.qm'):
+                self.langSelector.addItem(file[7:-3])
+
+    def changeEvent(self,event):
+        if event.type() == QEvent.LanguageChange:
+            self.retranslateUi(self)
+        super().changeEvent(event)
+
+    @pyqtSlot(str)
+    def on_langSelector_currentTextChanged(self,lang):
+        if lang:
+            self.__translator.load(QLocale(lang), 'carSim','_','lang','.qm')
+            QtWidgets.QApplication.instance().installTranslator(self.__translator)
+        else:
+            QtWidgets.QApplication.instance().removeTranslator(self.__translator)
 
     @pyqtSlot()
     def on_makeStepButton_clicked(self):
@@ -74,12 +93,6 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
-
-    if len(sys.argv)>1:
-        translator = QTranslator()
-        translator.load('carSim_'+ sys.argv[1], 'lang')
-        app.installTranslator(translator)
-    
 
     ui = Simulator()
     ui.show()
