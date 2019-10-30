@@ -1,11 +1,14 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt, QSortFilterProxyModel, QRect, QItemSelectionModel
+from PyQt5.QtCore import *
 
-import sys
+import os, sys
+
+import serial.tools.list_ports
 
 import gui
 import car
 
+_translate = QCoreApplication.translate
 
 class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self):
@@ -16,27 +19,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.populateFields()
         self.engineField.setText("0")
 
-        self.proxyTrackModel = QSortFilterProxyModel()
-        self.proxyTrackModel.setSourceModel(
-            car.guiConnector.tableGuiConnector(self.__car.param.get("Profile").toList()))
-        self.trackVerticalProfileTab.setModel(self.proxyTrackModel)
-
-        self.actionExport_Settings.triggered.connect(self.saveConfig)
-
-    @pyqtSlot()
-    def on_rowInsertButton_clicked(self):
-        self.trackVerticalProfileTab.model().insertRow(0)
-        self.trackVerticalProfileTab.selectRow(0)
-        self.trackVerticalProfileTab.setFocus()
-
-    @pyqtSlot()
-    def on_rowDeleteButton_clicked(self):
-        indexes = self.trackVerticalProfileTab.selectionModel().selectedIndexes()
-        for i in indexes:
-            if not i.isValid():
-                continue
-            print(i.row())
-            self.trackVerticalProfileTab.model().removeRow(i.row())
+        self.__car.param.fromJSON(car.defaultParams())
 
     @pyqtSlot()
     def on_makeStepButton_clicked(self):
@@ -44,7 +27,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.__car.setThrottle(self.engineField.text())
             self.__car.makeStep()
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, "Error", str(e))
+            QtWidgets.QMessageBox.critical(self, _translate("Dialog","Error"), str(e))
 
         self.populateFields()
 
@@ -62,18 +45,41 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.speedField.setText(f"{self.__car.getSimSpeed():.2f}")
         self.fuelField.setText(f"{self.__car.getSimFuel():.2f}")
 
-    def saveConfig(self):
+    @pyqtSlot()
+    def on_actionExport_Settings_triggered(self):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self, "Save Config", ".", filter="Config Files (*.json);;All Files(*.*)")
+            self, _translate("Dialog","Save Config"), ".", filter=_translate("Dialog","Config Files (*.json)")+";;"+_translate("Dialog","All Files(*.*)"))
         if filename:
             fp = open(filename, 'w')
             self.__car.param.toJSON(file=fp)
             fp.close()
 
+    @pyqtSlot()
+    def on_actionImport_Settings_triggered(self):
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, _translate("Dialog","Open Config"), ".", filter=_translate("Dialog","Config Files (*.json)")+";;"+_translate("Dialog","All Files(*.*)"))
+        if filename:
+            fp = open(filename, 'r')
+            self.__car.param.fromJSON(fp)
+            fp.close()
+    
+    @pyqtSlot()
+    def on_refreshAvailablePorts_clicked(self):
+        ports = serial.tools.list_ports.comports()
+        for port, desc, hwid in sorted(ports):
+            self.availablePorts.addItem("{}: {}".format(port, desc))
+
+    
 
 if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
+
+    if len(sys.argv)>1:
+        translator = QTranslator()
+        translator.load('carSim_'+ sys.argv[1], 'lang')
+        app.installTranslator(translator)
+    
 
     ui = Simulator()
     ui.show()

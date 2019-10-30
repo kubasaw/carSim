@@ -33,8 +33,59 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
+    <widget class="QWidget" name="Connection">
+     <attribute name="title">
+      <string>Connection</string>
+     </attribute>
+     <widget class="QGroupBox" name="serialSettings">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>9</y>
+        <width>231</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Serial communication settings</string>
+      </property>
+      <widget class="QComboBox" name="availablePorts">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>211</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="refreshAvailablePorts">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>211</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Refresh</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPlainTextEdit" name="plainTextEdit">
+      <property name="geometry">
+       <rect>
+        <x>243</x>
+        <y>20</y>
+        <width>411</width>
+        <height>291</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
     <widget class="QWidget" name="Simulation">
      <attribute name="title">
       <string>Simulation</string>
@@ -138,74 +189,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="Car">
-     <attribute name="title">
-      <string>Car</string>
-     </attribute>
-    </widget>
-    <widget class="QWidget" name="Track">
-     <attribute name="title">
-      <string>Track</string>
-     </attribute>
-     <widget class="QLabel" name="trackVerticalProfileLabel">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>121</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Track Profile (table view)</string>
-      </property>
-     </widget>
-     <widget class="QTableView" name="trackVerticalProfileTab">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>231</width>
-        <height>281</height>
-       </rect>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::WheelFocus</enum>
-      </property>
-      <property name="alternatingRowColors">
-       <bool>true</bool>
-      </property>
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="rowInsertButton">
-      <property name="geometry">
-       <rect>
-        <x>250</x>
-        <y>30</y>
-        <width>75</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Add point</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="rowDeleteButton">
-      <property name="geometry">
-       <rect>
-        <x>250</x>
-        <y>60</y>
-        <width>75</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Remove point</string>
-      </property>
      </widget>
     </widget>
    </widget>
