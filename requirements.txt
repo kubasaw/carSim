@@ -2,3 +2,4 @@ numpy
 scipy
 pyqt5
 pyserial
+python-can

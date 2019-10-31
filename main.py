@@ -1,41 +1,44 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 
-import os, sys
+import os
+import sys
 
 import serial.tools.list_ports
+import can
 
 import gui
 import car
 
 _translate = QCoreApplication.translate
 
+
 class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self):
         super().__init__()
-        
+
         self.__car = car.motion()
         self.__car.param.fromJSON(car.defaultParams())
 
-        self.__translator=QTranslator(self)
+        self.__translator = QTranslator(self)
 
         self.setupUi(self)
         self.populateFields()
         self.engineField.setText("0")
 
-        for file in os.listdir('lang'):
+        for file in os.listdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lang')):
             if file.startswith('carSim_') and file.endswith('.qm'):
                 self.langSelector.addItem(file[7:-3])
 
-    def changeEvent(self,event):
+    def changeEvent(self, event):
         if event.type() == QEvent.LanguageChange:
             self.retranslateUi(self)
         super().changeEvent(event)
 
     @pyqtSlot(str)
-    def on_langSelector_currentTextChanged(self,lang):
+    def on_langSelector_currentTextChanged(self, lang):
         if lang:
-            self.__translator.load(QLocale(lang), 'carSim','_','lang','.qm')
+            self.__translator.load(QLocale(lang), 'carSim', '_', 'lang', '.qm')
             QtWidgets.QApplication.instance().installTranslator(self.__translator)
         else:
             QtWidgets.QApplication.instance().removeTranslator(self.__translator)
@@ -46,7 +49,8 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.__car.setThrottle(self.engineField.text())
             self.__car.makeStep()
         except Exception as e:
-            QtWidgets.QMessageBox.critical(self, _translate("Dialog","Error"), str(e))
+            QtWidgets.QMessageBox.critical(
+                self, _translate("Dialog", "Error"), str(e))
 
         self.populateFields()
 
@@ -67,7 +71,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     @pyqtSlot()
     def on_actionExport_Settings_triggered(self):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
-            self, _translate("Dialog","Save Config"), ".", filter=_translate("Dialog","Config Files (*.json)")+";;"+_translate("Dialog","All Files(*.*)"))
+            self, _translate("Dialog", "Save Config"), ".", filter=_translate("Dialog", "Config Files (*.json)")+";;"+_translate("Dialog", "All Files(*.*)"))
         if filename:
             fp = open(filename, 'w')
             self.__car.param.toJSON(file=fp)
@@ -76,19 +80,30 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     @pyqtSlot()
     def on_actionImport_Settings_triggered(self):
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, _translate("Dialog","Open Config"), ".", filter=_translate("Dialog","Config Files (*.json)")+";;"+_translate("Dialog","All Files(*.*)"))
+            self, _translate("Dialog", "Open Config"), ".", filter=_translate("Dialog", "Config Files (*.json)")+";;"+_translate("Dialog", "All Files(*.*)"))
         if filename:
             fp = open(filename, 'r')
             self.__car.param.fromJSON(fp)
             fp.close()
-    
+
     @pyqtSlot()
     def on_refreshAvailablePorts_clicked(self):
         ports = serial.tools.list_ports.comports()
         for port, desc, hwid in sorted(ports):
             self.availablePorts.addItem("{}: {}".format(port, desc))
 
-    
+    @pyqtSlot(bool)
+    def on_connectPort_clicked(self, state):
+        if state:
+            self.connectPort.setText(_translate("Main Window", "Disconnect"))
+            self.__canbus = can.interface.Bus(bustype='slcan', channel="COM3")
+            tx_msg = can.Message(arbitration_id=0x01, data=[
+                                 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
+            self.__canbus.send(tx_msg)
+        else:
+            self.connectPort.setText(_translate("Main Window", "Connect"))
+            self.__canbus.shutdown()
+
 
 if __name__ == "__main__":
 

@@ -74,6 +74,22 @@
         <string>Refresh</string>
        </property>
       </widget>
+      <widget class="QPushButton" name="connectPort">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>270</y>
+         <width>211</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Connect</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
      <widget class="QPlainTextEdit" name="plainTextEdit">
       <property name="geometry">
