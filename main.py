@@ -90,19 +90,33 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def on_refreshAvailablePorts_clicked(self):
         ports = serial.tools.list_ports.comports()
         for port, desc, hwid in sorted(ports):
-            self.availablePorts.addItem("{}: {}".format(port, desc))
+            self.availablePorts.addItem(desc,port)
+
+    
 
     @pyqtSlot(bool)
     def on_connectPort_clicked(self, state):
         if state:
-            self.connectPort.setText(_translate("Main Window", "Disconnect"))
-            self.__canbus = can.interface.Bus(bustype='slcan', channel="COM3")
-            tx_msg = can.Message(arbitration_id=0x01, data=[
-                                 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
-            self.__canbus.send(tx_msg)
+            try:
+                self.__canbus = can.interface.Bus(bustype=self.canInterfaceTypes.currentText(), channel=self.availablePorts.currentData())
+                tx_msg = can.Message(arbitration_id=0x01, data=[
+                                 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88], is_extended_id=False)
+                self.__canbus.send(tx_msg)
+                self.__canbusNotifier=can.Notifier(self.__canbus,[car.canFrameAppender(self.canReceived.appendPlainText)])
+            except Exception as e:
+                self.connectPort.setChecked(False)
+                QtWidgets.QMessageBox.critical(self, _translate("Dialog", "Error"), str(e))
+            else:
+                self.connectPort.setText(_translate("MainWindow", "Disconnect"))
+                self.canInterfaceTypes.setEnabled(False)
+                self.availablePorts.setEnabled(False)
+
         else:
-            self.connectPort.setText(_translate("Main Window", "Connect"))
+            self.connectPort.setText(_translate("MainWindow", "Connect"))
+            self.__canbusNotifier.stop()
             self.__canbus.shutdown()
+            self.canInterfaceTypes.setEnabled(True)
+            self.availablePorts.setEnabled(True)
 
 
 if __name__ == "__main__":

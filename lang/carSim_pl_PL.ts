@@ -42,27 +42,27 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Dialog</name>
     <message>
-        <location filename="../main.py" line="49"/>
+        <location filename="../main.py" line="105"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="../main.py" line="69"/>
+        <location filename="../main.py" line="73"/>
         <source>Save Config</source>
         <translation>Zapisz plik ustawień</translation>
     </message>
     <message>
-        <location filename="../main.py" line="78"/>
+        <location filename="../main.py" line="82"/>
         <source>Config Files (*.json)</source>
         <translation>Pliki konfiguracyjne (*.json)</translation>
     </message>
     <message>
-        <location filename="../main.py" line="78"/>
+        <location filename="../main.py" line="82"/>
         <source>All Files(*.*)</source>
         <translation>Wszystkie pliki (*.*)</translation>
     </message>
     <message>
-        <location filename="../main.py" line="78"/>
+        <location filename="../main.py" line="82"/>
         <source>Open Config</source>
         <translation>Otwórz plik ustawień</translation>
     </message>
@@ -75,62 +75,62 @@ p, li { white-space: pre-wrap; }
         <translation>Symulator</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="91"/>
+        <location filename="../gui/mainWindow.ui" line="107"/>
         <source>Simulation</source>
         <translation>Symulacja</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="106"/>
+        <location filename="../gui/mainWindow.ui" line="122"/>
         <source>Position</source>
         <translation>Położenie</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="140"/>
+        <location filename="../gui/mainWindow.ui" line="156"/>
         <source>Fuel</source>
         <translation>Paliwo</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="150"/>
+        <location filename="../gui/mainWindow.ui" line="166"/>
         <source>Speed</source>
         <translation>Prędkość</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="160"/>
+        <location filename="../gui/mainWindow.ui" line="176"/>
         <source>Time</source>
         <translation>Czas</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="177"/>
+        <location filename="../gui/mainWindow.ui" line="193"/>
         <source>Make Simulation &amp;Step!</source>
         <translation>Wykonaj krok &amp;symulacji!</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="184"/>
+        <location filename="../gui/mainWindow.ui" line="200"/>
         <source>Engine</source>
         <translation>Silnik</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="240"/>
+        <location filename="../gui/mainWindow.ui" line="256"/>
         <source>Main</source>
         <translation>Główne</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="264"/>
+        <location filename="../gui/mainWindow.ui" line="280"/>
         <source>About</source>
         <translation>O aplikacji</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="259"/>
+        <location filename="../gui/mainWindow.ui" line="275"/>
         <source>Close</source>
         <translation>Zamknij</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="269"/>
+        <location filename="../gui/mainWindow.ui" line="285"/>
         <source>Import Settings</source>
         <translation>Wczytaj ustawienia</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="274"/>
+        <location filename="../gui/mainWindow.ui" line="290"/>
         <source>Export Settings</source>
         <translation>Zapisz ustawienia</translation>
     </message>
@@ -150,14 +150,24 @@ p, li { white-space: pre-wrap; }
         <translation>Odśwież</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="196"/>
+        <location filename="../gui/mainWindow.ui" line="212"/>
         <source>Settings</source>
         <translation>Ustawienia</translation>
     </message>
     <message>
-        <location filename="../gui/mainWindow.ui" line="223"/>
+        <location filename="../gui/mainWindow.ui" line="239"/>
         <source>Language</source>
         <translation>Język</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="110"/>
+        <source>Connect</source>
+        <translation>Połącz</translation>
+    </message>
+    <message>
+        <location filename="../main.py" line="107"/>
+        <source>Disconnect</source>
+        <translation>Rozłącz</translation>
     </message>
 </context>
 </TS>

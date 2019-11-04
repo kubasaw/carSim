@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>714</width>
+    <width>1020</width>
     <height>433</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>671</width>
+      <width>971</width>
       <height>341</height>
      </rect>
     </property>
@@ -90,13 +90,33 @@
         <bool>true</bool>
        </property>
       </widget>
+      <widget class="QComboBox" name="canInterfaceTypes">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>211</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string notr="true">slcan</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string notr="true">serial</string>
+        </property>
+       </item>
+      </widget>
      </widget>
-     <widget class="QPlainTextEdit" name="plainTextEdit">
+     <widget class="QPlainTextEdit" name="canReceived">
       <property name="geometry">
        <rect>
         <x>243</x>
         <y>20</y>
-        <width>411</width>
+        <width>711</width>
         <height>291</height>
        </rect>
       </property>
@@ -247,7 +267,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>714</width>
+     <width>1020</width>
      <height>21</height>
     </rect>
    </property>

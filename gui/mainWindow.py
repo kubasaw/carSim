@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'mainWindow.ui'
+# Form implementation generated from reading ui file 'gui\mainWindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -13,13 +13,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(714, 433)
+        MainWindow.resize(1020, 433)
         MainWindow.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedKingdom))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedKingdom))
         self.centralwidget.setObjectName("centralwidget")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(10, 10, 671, 341))
+        self.tabWidget.setGeometry(QtCore.QRect(10, 10, 971, 341))
         self.tabWidget.setToolTipDuration(0)
         self.tabWidget.setObjectName("tabWidget")
         self.Connection = QtWidgets.QWidget()
@@ -37,9 +37,16 @@ class Ui_MainWindow(object):
         self.connectPort.setGeometry(QtCore.QRect(10, 270, 211, 23))
         self.connectPort.setCheckable(True)
         self.connectPort.setObjectName("connectPort")
-        self.plainTextEdit = QtWidgets.QPlainTextEdit(self.Connection)
-        self.plainTextEdit.setGeometry(QtCore.QRect(243, 20, 411, 291))
-        self.plainTextEdit.setObjectName("plainTextEdit")
+        self.canInterfaceTypes = QtWidgets.QComboBox(self.serialSettings)
+        self.canInterfaceTypes.setGeometry(QtCore.QRect(10, 80, 211, 22))
+        self.canInterfaceTypes.setObjectName("canInterfaceTypes")
+        self.canInterfaceTypes.addItem("")
+        self.canInterfaceTypes.setItemText(0, "slcan")
+        self.canInterfaceTypes.addItem("")
+        self.canInterfaceTypes.setItemText(1, "serial")
+        self.canReceived = QtWidgets.QPlainTextEdit(self.Connection)
+        self.canReceived.setGeometry(QtCore.QRect(243, 20, 711, 291))
+        self.canReceived.setObjectName("canReceived")
         self.tabWidget.addTab(self.Connection, "")
         self.Simulation = QtWidgets.QWidget()
         self.Simulation.setObjectName("Simulation")
@@ -105,7 +112,7 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.Settings, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 714, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 1020, 21))
         self.menuBar.setObjectName("menuBar")
         self.menuMain = QtWidgets.QMenu(self.menuBar)
         self.menuMain.setObjectName("menuMain")
