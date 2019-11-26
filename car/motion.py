@@ -7,18 +7,21 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 import json
+import struct
+
 
 class motionParam(object):
     def __init__(self, value):
-        self.__value=value
+        self.__value = value
 
     @property
     def val(self):
         return self.__value
-    
+
     @property
     def export(self):
-        return (self.__class__.__name__,self.val)
+        return (self.__class__.__name__, self.val)
+
 
 class track(motionParam):
 
@@ -86,10 +89,10 @@ class constants():
 
     def __init__(self):
         self.__constDict = dict()
-       
+
     def get(self, param):
         return self.__constDict[param].val
-    
+
     def ret(self, param):
         return self.__constDict[param]
 
@@ -99,19 +102,18 @@ class constants():
         else:
             return json.dumps(self.__constDict, default=lambda x: x.export, indent=4)
 
-    def fromJSON (self, js):
-        if isinstance(js,str):
-            data=json.loads(js)
+    def fromJSON(self, js):
+        if isinstance(js, str):
+            data = json.loads(js)
         else:
-            data=json.load(js)
+            data = json.load(js)
 
-        
-        temp=dict()
-        for key, [valClass,val] in data.items():
-            temp[key]=globals()[valClass](val)
+        temp = dict()
+        for key, [valClass, val] in data.items():
+            temp[key] = globals()[valClass](val)
 
-        self.__constDict=temp
-            
+        self.__constDict = temp
+
 
 class motion:
     """Car motion class
@@ -147,6 +149,11 @@ class motion:
             Actual distance in meters
         """
         return self.__state[0]
+
+    def getCanBytes(self):
+        distance = int(self.getSimDistance())
+        speed = int(self.getSimSpeed()*360)
+        return speed.to_bytes(2,'little')+distance.to_bytes(2,'little')
 
     def getSimSpeed(self):
         """Returns actual vehicle speed

@@ -108,3 +108,6 @@ venv.bak/
 
 # Test config files
 *.json
+
+# Test snippets
+test*.py
