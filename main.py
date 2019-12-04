@@ -12,20 +12,7 @@ import car
 
 import time
 
-_translate = QCoreApplication.translate
-
-class SimulationTicker(QThread):
-
-    signal = pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-
-    def run(self):
-        while not self.isInterruptionRequested():
-            self.signal.emit()
-            self.sleep(1)
-    
+_translate = QCoreApplication.translate  
 
 class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self):
@@ -62,7 +49,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         try:
             self.__car.setThrottle(self.engineField.text())
             self.__car.makeStep()
-            motionMessage=can.Message(arbitration_id=0x18,is_extended_id=False,data=self.__car.getCanBytes()[:])
+            motionMessage=can.Message(arbitration_id=18,is_extended_id=False,data=self.__car.getCanBytes()[:])
             #print(motionMessage)
             self.__canbus.send(motionMessage)
         except Exception as e:
@@ -116,7 +103,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def on_connectPort_clicked(self, state):
         if state:
             try:
-                self.__canbus = can.ThreadSafeBus(interface=self.canInterfaceTypes.currentText(), channel=self.availablePorts.currentData())
+                self.__canbus = can.Bus(interface=self.canInterfaceTypes.currentText(), channel=self.availablePorts.currentData(), bitrate=50000)
                 self.__canbusNotifier=can.Notifier(self.__canbus,[car.canFrameAppender(self.canReceived.appendPlainText)],None)
             except Exception as e:
                 self.connectPort.setChecked(False)
@@ -126,16 +113,16 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.canInterfaceTypes.setEnabled(False)
                 self.availablePorts.setEnabled(False)
                 self.refreshAvailablePorts.setEnabled(False)
-                self.__tickerThread=SimulationTicker()
-                self.__tickerThread.signal.connect(self.on_makeStepButton_clicked)
-                self.__tickerThread.start()
+                self.__ticker=QTimer(self)
+                self.__ticker.setInterval(100)
+                self.__ticker.timeout.connect(self.on_makeStepButton_clicked)
+                #self.__ticker.start()
 
         else:
             self.connectPort.setText(_translate("MainWindow", "Connect"))
-            self.__tickerThread.requestInterruption()
-            self.__tickerThread.wait()
-            #self.__canbusNotifier.stop(0)
+            self.__canbusNotifier.stop(0)
             self.__canbus.shutdown()
+            self.__ticker.stop()
             self.canInterfaceTypes.setEnabled(True)
             self.availablePorts.setEnabled(True)
             self.refreshAvailablePorts.setEnabled(True)
