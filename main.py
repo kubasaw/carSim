@@ -12,7 +12,8 @@ import car
 
 import time
 
-_translate = QCoreApplication.translate  
+_translate = QCoreApplication.translate
+
 
 class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def __init__(self):
@@ -47,10 +48,10 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     @pyqtSlot()
     def on_makeStepButton_clicked(self):
         try:
-            self.__car.setThrottle(self.engineField.text())
+            # self.__car.setThrottle(self.engineField.text())
             self.__car.makeStep()
             motionMessage=can.Message(arbitration_id=18,is_extended_id=False,data=self.__car.getCanBytes()[:])
-            #print(motionMessage)
+            print(motionMessage)
             self.__canbus.send(motionMessage)
         except Exception as e:
             QtWidgets.QMessageBox.critical(
@@ -63,6 +64,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.positionField.setText(f"{self.__car.getSimDistance():.2f}")
         self.speedField.setText(f"{self.__car.getSimSpeed():.2f}")
         self.fuelField.setText(f"{self.__car.getSimFuel():.2f}")
+        self.engineField.setText(f"{self.__car.getThrottle():.2f}")
 
     @pyqtSlot()
     def on_actionAbout_triggered(self):
@@ -95,32 +97,34 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         ports = serial.tools.list_ports.comports()
         self.availablePorts.clear()
         for port, desc, hwid in sorted(ports):
-            self.availablePorts.addItem(desc,port)
-
-    
+            self.availablePorts.addItem(desc, port)
 
     @pyqtSlot(bool)
     def on_connectPort_clicked(self, state):
         if state:
             try:
-                self.__canbus = can.Bus(interface=self.canInterfaceTypes.currentText(), channel=self.availablePorts.currentData(), bitrate=50000)
-                self.__canbusNotifier=can.Notifier(self.__canbus,[car.canFrameAppender(self.canReceived.appendPlainText)],None)
+                self.__canbus = can.Bus(interface=self.canInterfaceTypes.currentText(
+                ), channel=self.availablePorts.currentData(), bitrate=50000)
+                self.__canbusNotifier = can.Notifier(self.__canbus, [car.canFrameAppender(
+                    self.canReceived.appendPlainText),car.switchingSetter(self.__car.setNextSwitchingPoint)], None )
             except Exception as e:
                 self.connectPort.setChecked(False)
-                QtWidgets.QMessageBox.critical(self, _translate("Dialog", "Error"), str(e))
+                QtWidgets.QMessageBox.critical(
+                    self, _translate("Dialog", "Error"), str(e))
             else:
-                self.connectPort.setText(_translate("MainWindow", "Disconnect"))
+                self.connectPort.setText(
+                    _translate("MainWindow", "Disconnect"))
                 self.canInterfaceTypes.setEnabled(False)
                 self.availablePorts.setEnabled(False)
                 self.refreshAvailablePorts.setEnabled(False)
-                self.__ticker=QTimer(self)
+                self.__ticker = QTimer(self)
                 self.__ticker.setInterval(100)
                 self.__ticker.timeout.connect(self.on_makeStepButton_clicked)
-                #self.__ticker.start()
+                # self.__ticker.start()
 
         else:
             self.connectPort.setText(_translate("MainWindow", "Connect"))
-            self.__canbusNotifier.stop(0)
+            self.__canbusNotifier.stop(2)
             self.__canbus.shutdown()
             self.__ticker.stop()
             self.canInterfaceTypes.setEnabled(True)
