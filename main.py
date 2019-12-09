@@ -103,10 +103,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
     def on_connectPort_clicked(self, state):
         if state:
             try:
-                self.__canbus = can.Bus(interface=self.canInterfaceTypes.currentText(
-                ), channel=self.availablePorts.currentData(), bitrate=50000)
-                self.__canbusNotifier = can.Notifier(self.__canbus, [car.canFrameAppender(
-                    self.canReceived.appendPlainText),car.switchingSetter(self.__car.setNextSwitchingPoint)], None )
+                self.__canbus = car.myCan(self.availablePorts.currentData())
             except Exception as e:
                 self.connectPort.setChecked(False)
                 QtWidgets.QMessageBox.critical(
@@ -117,19 +114,36 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 self.canInterfaceTypes.setEnabled(False)
                 self.availablePorts.setEnabled(False)
                 self.refreshAvailablePorts.setEnabled(False)
-                self.__ticker = QTimer(self)
-                self.__ticker.setInterval(100)
-                self.__ticker.timeout.connect(self.on_makeStepButton_clicked)
-                # self.__ticker.start()
+
 
         else:
             self.connectPort.setText(_translate("MainWindow", "Connect"))
-            self.__canbusNotifier.stop(2)
-            self.__canbus.shutdown()
-            self.__ticker.stop()
+            del(self.__canbus)
             self.canInterfaceTypes.setEnabled(True)
             self.availablePorts.setEnabled(True)
             self.refreshAvailablePorts.setEnabled(True)
+    
+    @pyqtSlot(bool)
+    def on_simulationStart_clicked(self,state):
+        if state:
+            self.__ticker = QTimer(self)
+            self.__ticker.setInterval(100)
+            self.__ticker.timeout.connect(self.on_makeStepButton_clicked)
+            self.__ticker.start()
+            self.__car.setThrottle(1)
+            self.simulationStart.setText(_translate("MainWindow","Stop Simulation!"))
+            lapData=1
+
+        else:
+            self.__ticker.stop()
+            self.simulationStart.setText(_translate("MainWindow","Start Simulation!"))
+            lapData=0
+        
+        lapMessage=can.Message(arbitration_id=32,is_extended_id=False,data=[lapData])
+        print(lapMessage)
+        self.__canbus.send(lapMessage)
+
+
 
 
 if __name__ == "__main__":

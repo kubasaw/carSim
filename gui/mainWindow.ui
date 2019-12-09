@@ -33,7 +33,7 @@
      <number>0</number>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="Connection">
      <attribute name="title">
@@ -132,10 +132,44 @@
         <x>10</x>
         <y>10</y>
         <width>317</width>
-        <height>71</height>
+        <height>99</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="speedField">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="timeField">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="engineLabel">
+         <property name="text">
+          <string>Engine</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="5">
+        <widget class="QPushButton" name="makeStepButton">
+         <property name="text">
+          <string>Make Simulation &amp;Step!</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLineEdit" name="engineField"/>
+       </item>
        <item row="0" column="1">
         <widget class="QLabel" name="positionLabel">
          <property name="text">
@@ -143,23 +177,6 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QLineEdit" name="engineField"/>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="positionField">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="speedField">
-         <property name="readOnly">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -180,16 +197,6 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="speedLabel">
-         <property name="text">
-          <string>Speed</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="timeLabel">
          <property name="text">
@@ -200,27 +207,30 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="timeField">
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="positionField">
          <property name="readOnly">
           <bool>true</bool>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="5">
-        <widget class="QPushButton" name="makeStepButton">
+       <item row="0" column="2">
+        <widget class="QLabel" name="speedLabel">
          <property name="text">
-          <string>Make Simulation &amp;Step!</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="engineLabel">
-         <property name="text">
-          <string>Engine</string>
+          <string>Speed</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="5">
+        <widget class="QPushButton" name="simulationStart">
+         <property name="text">
+          <string>Start Simulation!</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
