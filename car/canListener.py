@@ -75,11 +75,15 @@ class myCan(QObject):
             if not sep:
                 break
             else:
+                frame=frame.decode()
                 id = int(frame[1:4],16)
-                dlc = chr(frame[4])
-                print(dlc)
-                data = unpack(str(dlc)+'b',frame[5:])
-                print(data)
+                dlc = int(frame[4])
+                #print(dlc)
+                data=[]
+                for i in range(dlc):
+                    data.append(int(frame[5 + i * 2:7 + i * 2], 16))
+                messageReceived=canMsg(id,data)
+                print(messageReceived)
                 self.__messageBuffer=after
 
     def sendMsg(self, msg):
