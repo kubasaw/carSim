@@ -1,7 +1,7 @@
 from struct import unpack
 
 import serial
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import *
 
 
 # class canFrameAppender(Listener, QObject):
@@ -34,10 +34,10 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 class myCan(QObject):
 
-    appendFrameToLog = pyqtSignal(str)
-    setThrottle = pyqtSignal(float)
+    strSignal = pyqtSignal(str)
+    tupleSignal = pyqtSignal(tuple)
 
-    def __init__(self, serialPortName):
+    def __init__(self, serialPortName, strSlots=[], tupleSlots=[], loopTime=1):
         super().__init__()
         self.__serialhandle = serial.Serial(serialPortName, 115200)
         self.__serialhandle.reset_input_buffer()
@@ -55,14 +55,26 @@ class myCan(QObject):
         if chars != b'\r':
             raise OSError('Bad char!')
 
+        for slot in strSlots:
+            self.strSignal.connect(slot)
+
+        for slot in tupleSlots:
+            self.tupleSignal.connect(slot)
+
         self.__messageBuffer = bytes()
 
+        self.__receiveTimer = QTimer(self)
+        self.__receiveTimer.setInterval(loopTime*1000)
+        self.__receiveTimer.timeout.connect(self.__readSerial)
+        self.__receiveTimer.start()
+
     def __del__(self):
+        self.__receiveTimer.stop()
         self.__serialhandle.write(b'C\r')
         self.__serialhandle.close()
 
-    def readSerial(self):
-        print("LEN: "+str(len(self.__messageBuffer)))
+    def __readSerial(self):
+        # print("LEN: "+str(len(self.__messageBuffer)))
 
         while self.__serialhandle.in_waiting:
             self.__messageBuffer = self.__messageBuffer+self.__serialhandle.read()
@@ -71,27 +83,34 @@ class myCan(QObject):
 
     def __parseForMsg(self):
         while(1):
-            (frame, sep, after)=self.__messageBuffer.partition(b'\r')
-            if not sep:
+            (frame, sep, after) = self.__messageBuffer.partition(b'\r')
+            self.__messageBuffer = after
+            if (not sep):
                 break
+            elif (len(frame) < 5):
+                continue
             else:
-                frame=frame.decode()
-                id = int(frame[1:4],16)
+                frame = frame.decode()
+                id = int(frame[1:4], 16)
                 dlc = int(frame[4])
-                #print(dlc)
-                data=[]
+                # print(dlc)
+                data = []
                 for i in range(dlc):
                     data.append(int(frame[5 + i * 2:7 + i * 2], 16))
-                messageReceived=canMsg(id,data)
+                messageReceived = canMsg(id, data)
                 print(messageReceived)
-                self.__messageBuffer=after
+                self.strSignal.emit(str(messageReceived))
+                if messageReceived.stdId == 19:
+                    engine = unpack(
+                        'fb', bytes(messageReceived.data[0:5]))
+                    self.tupleSignal.emit(engine)
 
     def sendMsg(self, msg):
         self.__serialhandle.write(b't')
         # print(msg.stdId)
         # print('{:03x}'.format(msg.stdId))
         self.__serialhandle.write('{:03X}'.format(msg.stdId).encode())
-        self.__serialhandle.write('{:d}'.format(len(msg.data)).encode())
+        self.__serialhandle.write('{:d}'.format(msg.dlc).encode())
         for sign in msg.data:
             self.__serialhandle.write('{:02X}'.format(sign).encode())
         self.__serialhandle.write(b'\r')
@@ -102,6 +121,11 @@ class canMsg():
     def __init__(self, StdId, Data):
         self.stdId = StdId
         self.data = Data
+        self.dlc = len(Data)
 
     def __str__(self):
-        return "ID: {ID:#x}\t Data: {Data}".format(Data=[hex(no) for no in self.data], ID=self.stdId)
+        if self.stdId == 19:
+            return "ID: {ID:#x}\t Data: {Data}".format(Data=unpack(
+                        'fb', bytes(self.data[0:5])), ID=self.stdId)
+        else:
+            return "ID: {ID:#x}\t Data: {Data}".format(Data=[hex(no) for no in self.data], ID=self.stdId)

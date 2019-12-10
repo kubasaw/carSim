@@ -125,7 +125,7 @@ class motion:
         self.__state = np.array(initialCondition)
         self.__time = 0
         self.__throttle = 0
-        self.__nextSwitch = 0
+        self.__switchingPoints = {0: 0.0}
         self.param = constants()
 
         # Simulation control
@@ -187,8 +187,15 @@ class motion:
         """
         return self.__throttle
 
-    def setNextSwitchingPoint(self, time):
-        self.__nextSwitch = time
+    def setSwitchingPoint(self, tup):
+        self.__switchingPoints[tup[1]] = tup[0]
+
+    def getNextSwitchingPoint(self):
+        for i in sorted(self.__switchingPoints.keys()):
+            if self.__switchingPoints[i] > self.__time:
+                return self.__switchingPoints[i]
+
+        return float("inf")
 
     def setThrottle(self, throttle):
         """Set actual throttle value for next simulation time steps
@@ -282,16 +289,18 @@ class motion:
         t0 = self.__time
         tf = self.__time+self.__timestep
 
-        if(t0 < self.__nextSwitch and tf > self.__nextSwitch):
-            self.__state = solve_ivp(lambda t, x: carDynamics(t, x, self.__throttle), (t0, self.__nextSwitch),
-                                     self.__state, t_eval=[self.__nextSwitch])['y'].flatten()
+        __nextSwitch = self.getNextSwitchingPoint()
+
+        if(t0 < __nextSwitch and tf > __nextSwitch):
+            self.__state = solve_ivp(lambda t, x: carDynamics(t, x, self.__throttle), (t0, __nextSwitch),
+                                     self.__state, t_eval=[__nextSwitch])['y'].flatten()
             if (self.__throttle <= 0):
                 self.__state[2] += self.param.get("r0")
                 self.setThrottle(1)
             else:
                 self.setThrottle(0)
 
-            self.__state = solve_ivp(lambda t, x: carDynamics(t, x, self.__throttle), (self.__nextSwitch, tf),
+            self.__state = solve_ivp(lambda t, x: carDynamics(t, x, self.__throttle), (__nextSwitch, tf),
                                      self.__state, t_eval=[tf])['y'].flatten()
 
         else:
