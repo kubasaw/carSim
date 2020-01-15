@@ -29,7 +29,7 @@ class track(motionParam):
         super().__init__(trackProfile)
         self.__length = max(pos[0] for pos in self.val)
         self.__interpolant = interp1d([pos[0] for pos in self.val], [
-            pos[1] for pos in self.val], kind='cubic', bounds_error=True, copy=False, assume_sorted=False)
+            pos[1] for pos in self.val], kind='linear', bounds_error=True, copy=False, assume_sorted=False)
 
     def getSlopeSine(self, point, positionInterval=2):
         """Compute track slope sine
@@ -217,6 +217,10 @@ class motion:
         except:
             raise ValueError(
                 "Throttle value have to be choosen from unit interval [0-1]")
+
+        if (self.__throttle <= 0 and temp >= 0):
+            self.__state[2] += self.param.get("r0")
+
         self.__throttle = temp
 
     def setTimestep(self, dt):
@@ -295,7 +299,6 @@ class motion:
             self.__state = solve_ivp(lambda t, x: carDynamics(t, x, self.__throttle), (t0, __nextSwitch),
                                      self.__state, t_eval=[__nextSwitch])['y'].flatten()
             if (self.__throttle <= 0):
-                self.__state[2] += self.param.get("r0")
                 self.setThrottle(1)
             else:
                 self.setThrottle(0)
@@ -306,6 +309,12 @@ class motion:
         else:
             self.__state = solve_ivp(lambda t, x: carDynamics(t, x, self.__throttle), (t0, tf),
                                      self.__state, t_eval=[tf])['y'].flatten()
+            if(__nextSwitch == tf):
+                if (self.__throttle <= 0):
+                    self.setThrottle(1)
+                else:
+                    self.setThrottle(0)
+
         self.__time = tf
 
         return self.__state

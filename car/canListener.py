@@ -1,4 +1,5 @@
 from struct import unpack
+from time import time
 
 import serial
 from PyQt5.QtCore import *
@@ -37,7 +38,7 @@ class myCan(QObject):
     strSignal = pyqtSignal(str)
     tupleSignal = pyqtSignal(tuple)
 
-    def __init__(self, serialPortName, strSlots=[], tupleSlots=[], loopTime=1):
+    def __init__(self, serialPortName, strSlots=[], tupleSlots=[], loopTime=1.0):
         super().__init__()
         self.__serialhandle = serial.Serial(serialPortName, 115200)
         self.__serialhandle.reset_input_buffer()
@@ -119,10 +120,11 @@ class myCan(QObject):
 class canMsg():
 
     def __init__(self, StdId, Data):
+        self.timestamp = time()
         self.stdId = StdId
         self.data = Data
         self.dlc = len(Data)
-
+        
     def __str__(self):
         if self.stdId == 19:
             return "ID: {ID:#x}\t Data: {Data}".format(Data=unpack(

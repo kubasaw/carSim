@@ -132,54 +132,10 @@
         <x>10</x>
         <y>10</y>
         <width>317</width>
-        <height>99</height>
+        <height>128</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="speedField">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="timeField">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="engineLabel">
-         <property name="text">
-          <string>Engine</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" colspan="5">
-        <widget class="QPushButton" name="makeStepButton">
-         <property name="text">
-          <string>Make Simulation &amp;Step!</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QLineEdit" name="engineField"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="positionLabel">
-         <property name="text">
-          <string>Position</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="3">
         <widget class="QLineEdit" name="fuelField">
          <property name="readOnly">
@@ -197,6 +153,26 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="engineLabel">
+         <property name="text">
+          <string>Engine</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="positionLabel">
+         <property name="text">
+          <string>Position</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="timeLabel">
          <property name="text">
@@ -207,10 +183,27 @@
          </property>
         </widget>
        </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="speedField">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLineEdit" name="engineField"/>
+       </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="positionField">
          <property name="readOnly">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="5">
+        <widget class="QPushButton" name="makeStepButton">
+         <property name="text">
+          <string>Make Simulation &amp;Step!</string>
          </property>
         </widget>
        </item>
@@ -233,6 +226,44 @@
           <bool>true</bool>
          </property>
         </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLineEdit" name="timeField">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="5">
+        <widget class="QPushButton" name="resetSimulationButton">
+         <property name="text">
+          <string>Reset Simulation!</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>329</x>
+        <y>9</y>
+        <width>631</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="chartsGrid">
+       <item row="1" column="0">
+        <widget class="QChartView" name="fuelChartW" native="true"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QChartView" name="positionChartW" native="true"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="QChartView" name="engineChartW" native="true"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="QChartView" name="speedChartW" native="true"/>
        </item>
       </layout>
      </widget>
@@ -321,6 +352,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QWidget</extends>
+   <header>PyQt5.QtChart</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

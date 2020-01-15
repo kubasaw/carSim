@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
+from PyQt5.QtChart import QChart, QLineSeries
 
 import os
 import sys
@@ -25,6 +26,49 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.__translator = QTranslator(self)
 
         self.setupUi(self)
+
+        self.positionChart = QChart()
+        self.positionSeries = QLineSeries()        
+
+        self.speedChart = QChart()
+        self.speedSeries = QLineSeries()
+
+        self.fuelChart = QChart()
+        self.fuelSeries = QLineSeries()
+
+        self.engineChart = QChart()
+        self.engineSeries = QLineSeries()
+
+        self.positionChart.addSeries(self.positionSeries)
+        self.speedChart.addSeries(self.speedSeries)
+        self.fuelChart.addSeries(self.fuelSeries)
+        self.engineChart.addSeries(self.engineSeries)
+
+        self.positionChart.legend().hide()
+        self.speedChart.legend().hide()
+        self.fuelChart.legend().hide()
+        self.engineChart.legend().hide()   
+
+        self.positionChart.createDefaultAxes()
+        self.speedChart.createDefaultAxes()
+        self.fuelChart.createDefaultAxes()
+        self.engineChart.createDefaultAxes()
+        
+        self.positionChart.setTitle("Position")
+        self.speedChart.setTitle("Speed")
+        self.fuelChart.setTitle("Fuel")
+        self.engineChart.setTitle("Engine")
+
+        self.positionChart.setMargins(QMargins())
+        self.speedChart.setMargins(QMargins())
+        self.fuelChart.setMargins(QMargins())
+        self.engineChart.setMargins(QMargins())
+
+        self.positionChartW.setChart(self.positionChart)
+        self.speedChartW.setChart(self.speedChart)
+        self.fuelChartW.setChart(self.fuelChart)
+        self.engineChartW.setChart(self.engineChart)
+
         self.populateFields()
         self.engineField.setText("1")
 
@@ -44,6 +88,18 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             QtWidgets.QApplication.instance().installTranslator(self.__translator)
         else:
             QtWidgets.QApplication.instance().removeTranslator(self.__translator)
+    
+    @pyqtSlot()
+    def on_resetSimulationButton_clicked(self):
+        self.__car = car.motion()
+        self.__car.param.fromJSON(car.defaultParams())
+
+        self.positionSeries = QLineSeries()
+        self.speedSeries = QLineSeries()
+        self.fuelSeries = QLineSeries()
+        self.engineSeries = QLineSeries()
+
+        self.populateFields()
 
     @pyqtSlot()
     def on_makeStepButton_clicked(self):
@@ -55,13 +111,16 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
                 StdId=18, Data=self.__car.getCanBytes()[:])
             print(motionMessage)
             self.__canbus.sendMsg(motionMessage)
+            with open('log.dat', 'a') as outfile:
+                outfile.write("%.1f\t%f\t%f\t%f\n" % (self.__car.getSimTime(),
+                                                      self.__car.getSimDistance(), self.__car.getSimSpeed(), self.__car.getSimFuel()))
         except Exception as e:
-            QtWidgets.QMessageBox.critical(
+            QtWidgets.QMessageBox.warning(
                 self, _translate("Dialog", "Error"), str(e))
 
         self.populateFields()
-        if float(self.timeField.text())>=240:
-            if self.simulationStart.isChecked()==True:
+        if float(self.timeField.text()) >= 240:
+            if self.simulationStart.isChecked() == True:
                 self.simulationStart.click()
 
     def populateFields(self):
@@ -70,6 +129,36 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.speedField.setText(f"{self.__car.getSimSpeed():.2f}")
         self.fuelField.setText(f"{self.__car.getSimFuel():.2f}")
         self.engineField.setText(f"{self.__car.getThrottle():.2f}")
+
+        xax = self.positionChart.axisX()
+
+        if(self.__car.getSimTime()>self.positionChart.axisX().max()):
+            self.positionChart.axisX().setMax(self.__car.getSimTime())
+            self.speedChart.axisX().setMin(self.__car.getSimTime())
+            self.fuelChart.axisX().setMin(self.__car.getSimTime())
+            self.engineChart.axisX().setMin(self.__car.getSimTime())
+        elif(self.__car.getSimTime()<self.positionChart.axisX().min()):
+            self.positionChart.axisX().setMin(self.__car.getSimTime())
+            self.speedChart.axisX().setMin(self.__car.getSimTime())
+            self.fuelChart.axisX().setMin(self.__car.getSimTime())
+            self.engineChart.axisX().setMin(self.__car.getSimTime())
+
+        if(self.__car.getSimSpeed()>self.speedChart.axisY().max()):
+            self.speedChart.axisY().setMax(self.__car.getSimSpeed())
+        elif(self.__car.getSimSpeed()<self.speedChart.axisY().min()):
+            self.speedChart.axisY().setMin(self.__car.getSimSpeed())
+
+        if(self.__car.getSimFuel()>self.fuelChart.axisY().max()):
+            self.fuelChart.axisY().setMax(self.__car.getSimFuel())
+        elif(self.__car.getSimFuel()<self.fuelChart.axisY().min()):
+            self.fuelChart.axisY().setMin(self.__car.getSimFuel())
+
+        self.positionSeries.append(self.__car.getSimTime(),self.__car.getSimDistance())
+        self.speedSeries.append(self.__car.getSimTime(),self.__car.getSimSpeed())
+        self.fuelSeries.append(self.__car.getSimTime(),self.__car.getSimFuel())
+        self.engineSeries.append(self.__car.getSimTime(),self.__car.getThrottle())
+
+
 
     @pyqtSlot()
     def on_actionAbout_triggered(self):
@@ -110,7 +199,11 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             try:
                 self.__canbus = car.myCan(self.availablePorts.currentData(), [
                                           self.canReceived.appendPlainText], [
-                                          self.__car.setSwitchingPoint], loopTime=0.1)
+                                          self.__car.setSwitchingPoint], loopTime=0.025)
+                self.__watch = QTimer(self)
+                self.__watch.setInterval(1000)
+                self.__watch.timeout.connect(self.syncTime)
+                self.__watch.start()
             except Exception as e:
                 self.connectPort.setChecked(False)
                 QtWidgets.QMessageBox.critical(
@@ -125,9 +218,15 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         else:
             self.connectPort.setText(_translate("MainWindow", "Connect"))
             del(self.__canbus)
+            del(self.__watch)
             self.canInterfaceTypes.setEnabled(True)
             self.availablePorts.setEnabled(True)
             self.refreshAvailablePorts.setEnabled(True)
+
+    @pyqtSlot()
+    def syncTime(self):
+        self.__canbus.sendMsg(car.canMsg(StdId=0, Data=int(
+            self.__car.getSimTime()*1000.0).to_bytes(4, 'little')))
 
     @pyqtSlot(bool)
     def on_simulationStart_clicked(self, state):
@@ -140,6 +239,10 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             self.simulationStart.setText(
                 _translate("MainWindow", "Stop Simulation!"))
             lapData = 1
+            with open('log.dat', 'a') as outfile:
+                outfile.write("%.1f\t%f\t%f\t%f\n" % (self.__car.getSimTime(),
+                                                      self.__car.getSimDistance(), self.__car.getSimSpeed(), self.__car.getSimFuel()))
+        
 
         else:
             self.__ticker.stop()

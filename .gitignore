@@ -111,3 +111,7 @@ venv.bak/
 
 # Test snippets
 test*.py
+
+# Log files
+logs/
+log.dat
