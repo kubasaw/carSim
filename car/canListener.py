@@ -64,12 +64,15 @@ class myCan(QObject):
 
         self.__messageBuffer = bytes()
 
+        self.connected = True
+
         self.__receiveTimer = QTimer(self)
         self.__receiveTimer.setInterval(loopTime*1000)
         self.__receiveTimer.timeout.connect(self.__readSerial)
         self.__receiveTimer.start()
 
     def __del__(self):
+        self.connected = False
         self.__receiveTimer.stop()
         self.__serialhandle.write(b'C\r')
         self.__serialhandle.close()
@@ -126,8 +129,4 @@ class canMsg():
         self.dlc = len(Data)
         
     def __str__(self):
-        if self.stdId == 19:
-            return "ID: {ID:#x}\t Data: {Data}".format(Data=unpack(
-                        'fb', bytes(self.data[0:5])), ID=self.stdId)
-        else:
-            return "ID: {ID:#x}\t Data: {Data}".format(Data=[hex(no) for no in self.data], ID=self.stdId)
+        return "ID: {ID:#x}\t Data: {Data}".format(Data=[hex(no) for no in self.data], ID=self.stdId)

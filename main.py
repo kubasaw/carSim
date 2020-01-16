@@ -22,6 +22,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         self.__car = car.motion()
         self.__car.param.fromJSON(car.defaultParams())
+        self.__canbus = None
 
         self.__translator = QTranslator(self)
 
@@ -70,7 +71,6 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.engineChartW.setChart(self.engineChart)
 
         self.populateFields()
-        self.engineField.setText("1")
 
         for file in os.listdir(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lang')):
             if file.startswith('carSim_') and file.endswith('.qm'):
@@ -94,10 +94,10 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.__car = car.motion()
         self.__car.param.fromJSON(car.defaultParams())
 
-        self.positionSeries = QLineSeries()
-        self.speedSeries = QLineSeries()
-        self.fuelSeries = QLineSeries()
-        self.engineSeries = QLineSeries()
+        self.positionSeries.clear()
+        self.speedSeries.clear()
+        self.fuelSeries.clear()
+        self.engineSeries.clear()
 
         self.populateFields()
 
@@ -110,7 +110,8 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             motionMessage = car.canMsg(
                 StdId=18, Data=self.__car.getCanBytes()[:])
             print(motionMessage)
-            self.__canbus.sendMsg(motionMessage)
+            if (self.__canbus is not None and self.__canbus.connected == True):
+                self.__canbus.sendMsg(motionMessage)
             with open('log.dat', 'a') as outfile:
                 outfile.write("%.1f\t%f\t%f\t%f\n" % (self.__car.getSimTime(),
                                                       self.__car.getSimDistance(), self.__car.getSimSpeed(), self.__car.getSimFuel()))
@@ -128,20 +129,26 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.positionField.setText(f"{self.__car.getSimDistance():.2f}")
         self.speedField.setText(f"{self.__car.getSimSpeed():.2f}")
         self.fuelField.setText(f"{self.__car.getSimFuel():.2f}")
-        self.engineField.setText(f"{self.__car.getThrottle():.2f}")
+        if (self.__canbus is not None and self.__canbus.connected == True):
+            self.engineField.setText(f"{self.__car.getThrottle():.2f}")
 
         xax = self.positionChart.axisX()
 
         if(self.__car.getSimTime()>self.positionChart.axisX().max()):
             self.positionChart.axisX().setMax(self.__car.getSimTime())
-            self.speedChart.axisX().setMin(self.__car.getSimTime())
-            self.fuelChart.axisX().setMin(self.__car.getSimTime())
-            self.engineChart.axisX().setMin(self.__car.getSimTime())
-        elif(self.__car.getSimTime()<self.positionChart.axisX().min()):
-            self.positionChart.axisX().setMin(self.__car.getSimTime())
-            self.speedChart.axisX().setMin(self.__car.getSimTime())
-            self.fuelChart.axisX().setMin(self.__car.getSimTime())
-            self.engineChart.axisX().setMin(self.__car.getSimTime())
+            self.speedChart.axisX().setMax(self.__car.getSimTime())
+            self.fuelChart.axisX().setMax(self.__car.getSimTime())
+            self.engineChart.axisX().setMax(self.__car.getSimTime())
+        #elif(self.__car.getSimTime()<self.positionChart.axisX().min()):
+        #    self.positionChart.axisX().setMin(self.__car.getSimTime())
+        #    self.speedChart.axisX().setMin(self.__car.getSimTime())
+        #    self.fuelChart.axisX().setMin(self.__car.getSimTime())
+        #    self.engineChart.axisX().setMin(self.__car.getSimTime())
+
+        if(self.__car.getSimDistance()>self.positionChart.axisY().max()):
+            self.positionChart.axisY().setMax(self.__car.getSimDistance())
+        elif(self.__car.getSimSpeed()<self.speedChart.axisY().min()):
+            self.positionChart.axisY().setMin(self.__car.getSimDistance())
 
         if(self.__car.getSimSpeed()>self.speedChart.axisY().max()):
             self.speedChart.axisY().setMax(self.__car.getSimSpeed())
@@ -158,7 +165,12 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.fuelSeries.append(self.__car.getSimTime(),self.__car.getSimFuel())
         self.engineSeries.append(self.__car.getSimTime(),self.__car.getThrottle())
 
-
+    @pyqtSlot(str)
+    def on_engineField_textEdited(self,newEngineValue):
+        try:
+            self.__car.setThrottle(newEngineValue)
+        except:
+            pass
 
     @pyqtSlot()
     def on_actionAbout_triggered(self):
@@ -217,7 +229,7 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         else:
             self.connectPort.setText(_translate("MainWindow", "Connect"))
-            del(self.__canbus)
+            self.__canbus = None
             del(self.__watch)
             self.canInterfaceTypes.setEnabled(True)
             self.availablePorts.setEnabled(True)
@@ -252,7 +264,9 @@ class Simulator(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         lapMessage = car.canMsg(StdId=32, Data=[lapData])
         print(lapMessage)
-        self.__canbus.sendMsg(lapMessage)
+        
+        if (self.__canbus is not None and self.__canbus.connected == True):
+            self.__canbus.sendMsg(lapMessage)
 
 
 if __name__ == "__main__":

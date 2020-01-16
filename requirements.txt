@@ -1,5 +1,6 @@
 numpy
 scipy
 pyqt5
+pyqtchart
 pyserial
 python-can
